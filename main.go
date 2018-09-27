@@ -40,6 +40,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 	if user.Username == admin.Username && user.Password == admin.Password {
 		// Create Token
 		fmt.Println("Match!")
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
