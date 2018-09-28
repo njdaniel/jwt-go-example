@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/codegangsta/negroni"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"github.com/gorilla/mux"
 )
 
@@ -46,6 +48,12 @@ func main() {
 
 	r.HandleFunc("/", Index)
 	r.HandleFunc("/auth", Auth).Methods("POST")
+
+	//PROTECTED ENDPOINTS
+	r.Handle("/resource/", negroni.New(
+		negroni.HandlerFunc(ValidateTokenMiddleware),
+		negroni.Wrap(http.HandlerFunc(ProtectedHandler)),
+	))
 
 	fmt.Println("Listening...")
 	http.ListenAndServe(":5000", r)
@@ -134,6 +142,41 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
 
+}
+
+// ProtectedHandler is example of endpoint that needs token to access
+func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
+
+	response := Response{"Gained access to protected resource"}
+	JSONResponse(response, w)
+}
+
+//ValidateTokenMiddleware AUTH TOKEN VALIDATION
+func ValidateTokenMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+
+	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(VerifyKey)
+	if err != nil {
+		log.Println(err)
+	}
+	//validate token
+	token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor,
+		func(token *jwt.Token) (interface{}, error) {
+			return verifyKey, nil
+		})
+
+	if err == nil {
+
+		if token.Valid {
+			next(w, r)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, "Token is not valid")
+		}
+	} else {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorised access to this resource")
+	}
 }
 
 // JSONResponse helper
