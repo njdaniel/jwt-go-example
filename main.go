@@ -14,13 +14,18 @@ import (
 
 // RSA keys
 const (
-	privKeyPath = "./app.rsa"
-	pubKeyPath  = "./app.rsa.pub"
+	privKeyPath = "app.rsa"
+	pubKeyPath  = "app.rsa.pub"
 )
 
-var VerifyKey, SignKey []byte
+// VerifyKey are used to  verify the token
+var VerifyKey []byte
+
+// SignKey used to create token
+var SignKey []byte
 
 func init() {
+	fmt.Println("init")
 	var err error
 
 	SignKey, err = ioutil.ReadFile(privKeyPath)
@@ -40,9 +45,10 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", Index)
-	r.HandleFunc("/auth", Auth).Methods("PUT")
+	r.HandleFunc("/auth", Auth).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":5000", nil))
+	fmt.Println("Listening...")
+	http.ListenAndServe(":5000", r)
 }
 
 // Index is the root of the url tree to test if up
@@ -61,15 +67,18 @@ type UserCredentials struct {
 
 // User with a unique id
 type User struct {
-	UUID     string `json:"uuid"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
+// Response JSON
 type Response struct {
 	Data string `json:"data"`
 }
 
+// Token is struct to return token in JSON
 type Token struct {
 	Token string `json:"token"`
 }
@@ -101,13 +110,20 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 			Name string
 			Role string
 		}{user.Username, "Member"}
+		signer.Claims = claims
 
-		tokenString, err := signer.SignedString(SignKey)
+		fmt.Println(string(SignKey))
+		signKey, err := jwt.ParseRSAPrivateKeyFromPEM(SignKey)
+		if err != nil {
+			log.Println(err)
+		}
+		tokenString, err := signer.SignedString(signKey)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintln(w, "Error while signing the token")
 			log.Printf("Error signing token: %v\n", err)
+			return
 		}
 
 		//create a token instance using the token string
