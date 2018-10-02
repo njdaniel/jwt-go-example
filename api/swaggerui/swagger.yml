@@ -1,8 +1,9 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
-  version: "1.0.0"
+  version: 1.0.0
   title: JWT Example
-host: localhost: 5000
+  description: Optional multiline or single-line description
+host: http://localhost:5000
 basepath: /
 schemes:
   - http
