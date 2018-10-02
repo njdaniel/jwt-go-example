@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/gorilla/mux"
 )
@@ -12,7 +15,8 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/auth", Auth).Methods("PUt")
+	r.HandleFunc("/auth", Auth).Methods("PUT")
+	r.HandleFunc("/hello", GetUser).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":5000", r))
 }
@@ -40,7 +44,10 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 	if user.Username == admin.Username && user.Password == admin.Password {
 		// Create Token
 		fmt.Println("Match!")
-
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"foo": "bar",
+			"nbf": time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
+		})
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
