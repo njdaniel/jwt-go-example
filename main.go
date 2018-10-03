@@ -48,6 +48,7 @@ func main() {
 
 	r.HandleFunc("/", Index)
 	r.HandleFunc("/auth", Auth).Methods("POST")
+	r.HandleFunc("/public", GetPublic).Methods("GET")
 
 	//PROTECTED ENDPOINTS
 	r.Handle("/resource/", negroni.New(
@@ -89,6 +90,11 @@ type Response struct {
 // Token is struct to return token in JSON
 type Token struct {
 	Token string `json:"token"`
+}
+
+func GetPublic(w http.ResponseWriter, r *http.Request) {
+	response := Response{"Public Access"}
+	JSONResponse(response, w)
 }
 
 // Auth controller(handler?) to authenticate user with
