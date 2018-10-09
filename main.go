@@ -44,6 +44,8 @@ func init() {
 }
 
 func main() {
+	a := App{}
+	a.Run(":5000")
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", Index)
