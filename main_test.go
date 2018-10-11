@@ -117,3 +117,13 @@ func TestCreateProduct(t *testing.T) {
 		t.Errorf("Expected product ID to be '1'. Got '%v'", m["id"])
 	}
 }
+
+func TestGetProduct(t *testing.T) {
+	clearTable()
+	addProducts(1)
+
+	req, _ := http.NewRequest("GET", "/product/1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+}
