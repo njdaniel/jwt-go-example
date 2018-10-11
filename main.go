@@ -8,10 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/codegangsta/negroni"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
-	"github.com/gorilla/mux"
 )
 
 // RSA keys
@@ -46,20 +44,20 @@ func init() {
 func main() {
 	a := App{}
 	a.Run(":5000")
-	r := mux.NewRouter()
+	// r := mux.NewRouter()
 
-	r.HandleFunc("/", Index)
-	r.HandleFunc("/auth", Auth).Methods("POST")
-	r.HandleFunc("/public", GetPublic).Methods("GET")
+	// r.HandleFunc("/", Index)
+	// r.HandleFunc("/auth", Auth).Methods("POST")
+	// r.HandleFunc("/public", GetPublic).Methods("GET")
 
-	//PROTECTED ENDPOINTS
-	r.Handle("/resource/", negroni.New(
-		negroni.HandlerFunc(ValidateTokenMiddleware),
-		negroni.Wrap(http.HandlerFunc(ProtectedHandler)),
-	))
+	// //PROTECTED ENDPOINTS
+	// r.Handle("/resource/", negroni.New(
+	// 	negroni.HandlerFunc(ValidateTokenMiddleware),
+	// 	negroni.Wrap(http.HandlerFunc(ProtectedHandler)),
+	// ))
 
-	fmt.Println("Listening...")
-	http.ListenAndServe(":5000", r)
+	// fmt.Println("Listening...")
+	// http.ListenAndServe(":5000", r)
 }
 
 // Index is the root of the url tree to test if up
