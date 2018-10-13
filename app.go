@@ -20,6 +20,7 @@ type App struct {
 
 // Initialize setup app with db credentials
 func (a *App) Initialize(user, password, dbname string) {
+	fmt.Printf("user: %sv\n password: %sb\n dbname: %s \n", user, password, dbname)
 	connectionString :=
 		fmt.Sprintf("postgres://%s:%s@%s?sslmode=disable", user, password, dbname)
 	var err error
@@ -34,7 +35,7 @@ func (a *App) Initialize(user, password, dbname string) {
 
 // Run starts the web server
 func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(":8000", a.Router))
+	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func (a *App) initializeRoutes() {
