@@ -92,6 +92,7 @@ type Token struct {
 	Token string `json:"token"`
 }
 
+// GetPublic is a public facing endpoint
 func GetPublic(w http.ResponseWriter, r *http.Request) {
 	response := Response{"Public Access"}
 	JSONResponse(response, w)
